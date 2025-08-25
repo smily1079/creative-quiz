@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Styles Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: url('https://cdn.pixabay.com/photo/2017/06/26/11/07/background-2443421_1280.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 900px;
+  width: 90%;
+}
+.start-screen, .quiz-screen, .result-screen {
+  background: rgba(255,255,255,0.85);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  text-align: center;
+  width: 100%;
+}
+.flashcard {
+  background: rgba(230, 230, 250, 0.9);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+  animation: float 2s ease-in-out infinite alternate;
+  text-align: center;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.option-btn {
+  background-color: #191970;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+  animation: float 2s ease-in-out infinite alternate;
+}
+.option-btn:hover { background-color: #000080; }
+h1 { font-size: 2.5rem; margin-bottom: 15px; color: #4B0082; }
+h2 { font-size: 2rem; margin-bottom: 15px; }
+p { font-size: 1rem; margin-bottom:10px; }
+button.restart, button#startBtn {
+  background-color: #800080;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+button.restart:hover, button#startBtn:hover { background-color: #4B0082; }
+@keyframes float {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-10px); }
+}
+@media (min-width: 768px) {
+  .quiz-content { display: flex; gap: 20px; }
+  .flashcard { flex: 1; }
+  .options { flex: 1; }
+}
+.result-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #191970;
+  margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="start-screen">
+    <h1>Creative Styles Quiz</h1>
+    <p>Choose the option that best describes you. There are no right or wrong answers!</p>
+    <button id="startBtn">Start Quiz</button>
+  </div>
+  <div class="quiz-screen" style="display:none;">
+    <div class="quiz-content">
+      <div class="flashcard" id="questionCard"></div>
+      <div class="options" id="optionsContainer"></div>
+    </div>
+  </div>
+  <div class="result-screen" style="display:none;">
+    <h2>Your Creative Style</h2>
+    <div id="resultText"></div>
+    <button class="restart" id="restartBtn">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: "When solving a problem, I usually…", options: [{ text: "Draw a diagram or sketch it out 🖌️", type: "visual" }, { text: "Write down my thoughts ✍️", type: "word" }, { text: "Try it hands-on or test it 🛠️", type: "hands" }]},
+  { q: "I remember information best when…", options: [{ text: "I picture it in my mind 🖼️", type: "visual" }, { text: "I read or explain it in words 📖", type: "word" }, { text: "I do something physically with it 🏗️", type: "hands" }]},
+  { q: "I like organizing my notes or projects using…", options: [{ text: "Charts, colors, and diagrams 📊", type: "visual" }, { text: "Lists or written steps 📝", type: "word" }, { text: "Physical tools or moving things around 🔧", type: "hands" }]},
+  { q: "When learning a new skill, I prefer…", options: [{ text: "Watching examples or diagrams first 👀", type: "visual" }, { text: "Reading instructions or listening carefully 📚", type: "word" }, { text: "Jumping in and practicing hands-on 🎨", type: "hands" }]},
+  { q: "I enjoy expressing ideas by…", options: [{ text: "Drawing, sketching, or creating visuals 🖌️", type: "visual" }, { text: "Writing, speaking, or storytelling ✍️", type: "word" }, { text: "Building, experimenting, or doing practical activities 🛠️", type: "hands" }]},
+  { q: "When helping a friend solve a problem, I…", options: [{ text: "Show them with a drawing or diagram 🖼️", type: "visual" }, { text: "Explain it using words or steps 🗣️", type: "word" }, { text: "Demonstrate by doing it together 🤲", type: "hands" }]},
+  { q: "I feel most confident when…", options: [{ text: "I can visualize the solution clearly 🖌️", type: "visual" }, { text: "I can explain it in words 📖", type: "word" }, { text: "I can try it out myself 🛠️", type: "hands" }]},
+  { q: "I usually notice new ideas best when…", options: [{ text: "I see patterns or visualize them 🖼️", type: "visual" }, { text: "I read or talk about them ✍️", type: "word" }, { text: "I test them physically or try them 🏗️", type: "hands" }]},
+  { q: "When planning my day or a project, I…", options: [{ text: "Sketch a visual plan 🖌️", type: "visual" }, { text: "Write a to-do list or steps 📝", type: "word" }, { text: "Arrange things physically or try methods 🛠️", type: "hands" }]},
+  { q: "I enjoy remembering stories, events, or lessons by…", options: [{ text: "Imagining them as pictures or movies 🖼️", type: "visual" }, { text: "Retelling or writing them down ✍️", type: "word" }, { text: "Acting them out or doing activities related 🏗️", type: "hands" }]},
+  { q: "When faced with a challenge, I usually…", options: [{ text: "Visualize different solutions 🖌️", type: "visual" }, { text: "Think or write through each step ✍️", type: "word" }, { text: "Test ideas practically 🛠️", type: "hands" }]},
+  { q: "I prefer instructions that are…", options: [{ text: "Illustrated or diagrammed 🖼️", type: "visual" }, { text: "Written or explained in words 📖", type: "word" }, { text: "Shown by example or demonstrated 🤲", type: "hands" }]},
+  { q: "I enjoy hobbies that involve…", options: [{ text: "Drawing, painting, or designing 🖌️", type: "visual" }, { text: "Writing stories, journaling, or reading ✍️", type: "word" }, { text: "Building, crafting, or experimenting 🛠️", type: "hands" }]},
+  { q: "When solving a puzzle or game, I…", options: [{ text: "Visualize the pieces and patterns 🖼️", type: "visual" }, { text: "Think logically or write notes ✍️", type: "word" }, { text: "Move pieces around and try different methods 🏗️", type: "hands" }]},
+  { q: "I feel most creative when…", options: [{ text: "I can see ideas in my mind or on paper 🖌️", type: "visual" }, { text: "I write, talk, or explain ideas ✍️", type: "word" }, { text: "I build, experiment, or do things physically 🛠️", type: "hands" }]},
+];
+
+const results = {
+  visual: { heading: "Visual Thinker", text: "You think in pictures! Diagrams, doodles, and colors help you solve problems and generate ideas. Use sketches, mind maps, or visual plans to boost your creativity!" },
+  word: { heading: "Word Thinker", text: "You think in words! Writing, talking, and storytelling help you process ideas and organize your thoughts. Use lists, journals, or explanations to unlock your creative potential!" },
+  hands: { heading: "Hands-On Thinker", text: "You learn by doing! Experimenting, building, and hands-on practice help you discover solutions and ideas. Use projects, trials, and real-world practice to enhance your creativity!" },
+  mixed: { heading: "Mixed Style", text: "You have more than one creative style! This gives you flexibility—you can approach problems visually, verbally, or physically. Try combining methods to solve challenges creatively!" }
+};
+
+const resultImages = {
+  visual: "visual.jpg",
+  word: "word.jpg",
+  hands: "hands-on.jpg",
+  mixed: "mixed.jpg"
+};
+
+let current = 0;
+let scores = { visual: 0, word: 0, hands: 0 };
+
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+const startScreen = document.querySelector(".start-screen");
+const quizScreen = document.querySelector(".quiz-screen");
+const resultScreen = document.querySelector(".result-screen");
+const questionCard = document.getElementById("questionCard");
+const optionsContainer = document.getElementById("optionsContainer");
+const resultText = document.getElementById("resultText");
+
+startBtn.onclick = () => {
+  startScreen.style.display="none";
+  quizScreen.style.display="block";
+  loadQuestion();
+};
+restartBtn.onclick = () => {
+  current=0; scores={visual:0,word:0,hands:0};
+  resultScreen.style.display="none";
+  startScreen.style.display="block";
+};
+
+function loadQuestion() {
+  const q = questions[current];
+  questionCard.textContent = q.q;
+  optionsContainer.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt.text;
+    btn.onclick = () => answer(opt.type);
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function answer(type){
+  if(type) scores[type]++;
+  current++;
+  if(current<questions.length) loadQuestion();
+  else showResult();
+}
+
+function showResult(){
+  quizScreen.style.display="none";
+  resultScreen.style.display="block";
+  
+  const max = Math.max(...Object.values(scores));
+  const top = Object.entries(scores).filter(([_,v])=>v===max).map(([k])=>k);
+  
+  let key;
+  if(top.length>1) key = "mixed";
+  else key = top[0];
+  
+  resultText.innerHTML = `
+    <img src="${resultImages[key]}" alt="${key} thinker" style="max-width:300px; margin-bottom:20px; border-radius:15px;">
+    <div class="result-heading">${results[key].heading}</div>
+    <p>${results[key].text}</p>
+  `;
+}
+</script>
+</body>
+</html>
